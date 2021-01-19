@@ -5,7 +5,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
-client = commands.Bot(command_prefix="./", activity=discord.Game(name="./help"))
+client = commands.Bot(command_prefix="!", activity=discord.Game(name="!help"))
 
 def check_if_bot_owner(ctx):
     return ctx.message.author.id == int(os.getenv("RICHIE"))
