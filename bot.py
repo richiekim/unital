@@ -7,9 +7,6 @@ from dotenv import load_dotenv
 load_dotenv()
 client = commands.Bot(command_prefix="!", activity=discord.Game(name="!help"))
 
-def check_if_bot_owner(ctx):
-    return ctx.message.author.id == int(os.getenv("RICHIE"))
-
 def default_embed_template():
     embedded_message = discord.Embed(title="Unital Bot", colour=discord.Colour.teal())
     embedded_message.set_footer(text="Written by richie#2785", icon_url=os.getenv("ICON"))
@@ -40,20 +37,20 @@ async def on_command_error(ctx, error):
         await ctx.send(content=f"Error: {error}")
 
 @client.command()
-@commands.check(check_if_bot_owner)
+@commands.is_owner()
 async def load(ctx, extension):
     client.load_extension(f"cogs.{extension}")
     await ctx.send(content=f"{extension} has been loaded.")
 
 @client.command()
-@commands.check(check_if_bot_owner)
+@commands.is_owner()
 async def unload(ctx, extension):
     print("Starting to unload")
     client.unload_extension(f"cogs.{extension}")
     await ctx.send(content=f"{extension} has been unloaded.")
 
 @client.command()
-@commands.check(check_if_bot_owner)
+@commands.is_owner()
 async def reload(ctx, extension):
     client.unload_extension(f"cogs.{extension}")
     client.load_extension(f"cogs.{extension}")
