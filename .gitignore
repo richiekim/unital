@@ -1,2 +1,7 @@
+# Optimisation
+__pycache__
+cogs/__pycache__
+
+# Environments
 .env
 .venv
