@@ -5,7 +5,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
-client = commands.Bot(command_prefix="!", activity=discord.Game(name="!help"))
+client = commands.Bot(command_prefix="!")
+client.activity = discord.Game(name=f"{client.command_prefix}help")
 
 def check_if_bot_owner(ctx):
     return ctx.message.author.id == int(os.getenv("RICHIE"))
@@ -66,11 +67,11 @@ async def reload(ctx, extension):
 #     args = ctx.message.content.split()
 
 #     if len(args) == 1:
-#         embedded_message.add_field(name="Bot Commands", value="`./help <command>`")
+#         embedded_message.add_field(name="Bot Commands", value="`!help <command>`")
 #         await ctx.send(embed=embedded_message) 
 
 for filename in os.listdir("./cogs"):
-    if filename.endswith("py"):
+    if filename.endswith(".py"):
         client.load_extension(f"cogs.{filename[:-3]}")
 
 client.run(os.getenv("TOKEN"))
