@@ -35,10 +35,14 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CheckFailure):
         await ctx.send(content=f"Error: Command denied. Only the bot's owner can use this command.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(content=f"Error: Missing required arguments. Please use the help command for usage.")
-    else:
-        print(f"Error: {error}")
+        await ctx.send(content=f"Error: Missing required arguments. Check out the {client.command_prefix}help command for usage.")
+    elif isinstance(error, commands.ArgumentParsingError):
         await ctx.send(content=f"Error: {error}")
+    elif isinstance(error, commands.ExtensionError):
+        await ctx.send(content=f"Error: {error}. Please contact the bot's owner.")
+    else:
+        print(f"Uncaught Exception: {error}")
+        await ctx.send(content=f"Uncaught Exception: {error}. Please contact the bot's owner.")
 
 @client.command()
 @commands.check(check_if_bot_owner)
