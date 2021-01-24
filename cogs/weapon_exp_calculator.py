@@ -59,7 +59,6 @@ class WeaponExpCalculator(commands.Cog):
 			while True:
 				if curr_exp >= int(next_level_exp[str(curr_level)]):
 					if curr_level + 1 in ASCENSION_MILESTONES:
-
 						# Calculate refunded ores if any
 						wasted_exp = curr_exp - int(next_level_exp[str(curr_level)])
 						fine_ore_refunded = math.floor(wasted_exp/FINE)
@@ -138,9 +137,10 @@ class WeaponExpCalculator(commands.Cog):
 			curr_level = new_level
 			curr_exp = new_exp
 		
-		embed_msg.insert_field_at(index=1, name="**After**", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)		
+		msg = f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n"
+		msg += f"__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement"
+		embed_msg.insert_field_at(index=1, name="**After**", value=msg, inline=True)		
 		
-		msg = ""
 		if curr_level >= goal_level:
 			msg = f"You have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
 		else:
@@ -152,9 +152,11 @@ class WeaponExpCalculator(commands.Cog):
 
 		return embed_msg
 
-	# Input: current level, goal level, current exp, and number of mystic, fine and regular ores.
-	# Output: If enough then how much it will cost.
-	# 		  If not enough then what using all of the ores will get to and how many more mystic ores needed to reach goal.
+	# Input: 
+	# current level, goal level, current exp, and number of mystic, fine and regular ores.
+	# Output: 
+	# If enough then how many ores it will cost.
+	# If not enough then what level will using all of the ores will get to and how many more ores needed to reach goal.
 	@commands.command(aliases=["wep_exp"])
 	async def weapon_exp_calculator(self, ctx, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count):
 		args = ctx.message.content.split()
@@ -187,7 +189,6 @@ class WeaponExpCalculator(commands.Cog):
 
 		else:
 			await ctx.send(f"Usage: {self.client.command_prefix}weapon_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>\n{self.client.command_prefix}help for more details.")
-
 
 def setup(client):
 	client.add_cog(WeaponExpCalculator(client))
