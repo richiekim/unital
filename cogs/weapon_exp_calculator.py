@@ -83,7 +83,7 @@ class WeaponExpCalculator(commands.Cog):
 		return curr_level, curr_exp, mystic_count, fine_count, normal_count, fine_ore_refunded, normal_ore_refunded, wasted_exp
 
 	def calculate(self, embed_msg, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count):
-		with open(f"./cogs/wep_{rarity}_star_next_level_exp.json", "r") as f:
+		with open(f"./exp_per_level/exp_per_level_{rarity}.json", "r") as f:
 			next_level_exp = json.load(f)
 		f.close()
 
