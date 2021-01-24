@@ -89,70 +89,74 @@ class WeaponExpCalculator(commands.Cog):
 		if curr_exp > int(next_level_exp[str(curr_level)]):
 			raise commands.ArgumentParsingError(message="Invalid current weapon experience points value.")
 
-		curr_mystic_count = mystic_count
-		curr_fine_count = fine_count
-		curr_normal_count = normal_count
+		if not str(curr_level) in next_level_exp:
+			raise commands.ArgumentParsingError(message="Please enter a valid weapon level.")
+
+		if not str(goal_level) in next_level_exp:
+			raise commands.ArgumentParsingError(message="Please enter a valid goal level.")
+
+		if not curr_exp < int(next_level_exp[str(curr_level)]):
+			raise commands.ArgumentParsingError(message="Please enter a valid current experience points.")
+
+		embed_msg.add_field(name="Before", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Xp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
+
+		start_mystic_count = mystic_count
+		start_fine_count = fine_count
+		start_normal_count = normal_count
 
 		total_fine_refunded = 0
 		total_normal_refunded = 0
 
-		print("ASDASASFGAG")
+		while mystic_count + fine_count + normal_count > 0:
+			prev_mystic_count = mystic_count
+			prev_fine_count = fine_count	
+			prev_normal_count = normal_count
 
-		while curr_mystic_count + curr_fine_count + curr_normal_count > 0:
-			curr_upper_lvl_cap = 0
+			curr_upper_level_cap = 0
 
-			for lvl_cap in ASCENSION_MILESTONES:
-				if lvl_cap > curr_level:
-					curr_upper_lvl_cap = lvl_cap
+			for level_cap in ASCENSION_MILESTONES:
+				if level_cap > curr_level:
+					curr_upper_level_cap = level_cap
 				else:
 					break
 
-			level_upto = curr_upper_lvl_cap
-			if goal_level < curr_upper_lvl_cap:
+			level_upto = curr_upper_level_cap
+			if goal_level < curr_upper_level_cap:
 				level_upto = goal_level
 			
 			# Add exp
-			new_level, new_exp, curr_mystic_count, curr_fine_count, curr_normal_count, fine_ore_refunded, normal_ore_refunded, wasted_exp = self.add_exp(next_level_exp, curr_level, level_upto, curr_exp, curr_mystic_count, curr_fine_count, curr_normal_count)			
+			new_level, new_exp, mystic_count, fine_count, normal_count, fine_ore_refunded, normal_ore_refunded, wasted_exp = self.add_exp(next_level_exp, curr_level, level_upto, curr_exp, mystic_count, fine_count, normal_count)			
 
 			total_fine_refunded += fine_ore_refunded
 			total_normal_refunded += normal_ore_refunded
 
-			msg = f"""
-			----\n
-			current weapon lvl = {new_level}\n
-			current weapon exp = {new_exp}\n
+			embed_msg.add_field(name=f"Leveling: {curr_level} -> {level_upto}", value=f"Reached level {new_level:,}/{level_upto:,}\nCurrent exp: {new_exp:,}/{next_level_exp[str(new_level)]:,}", inline=True)
+			embed_msg.add_field(name=f"Used", value=f"{prev_mystic_count - mystic_count}x Mystic\n{prev_fine_count - fine_count +fine_ore_refunded}x Fine\n{prev_normal_count - normal_count + normal_ore_refunded}x Enhancement", inline=True)
+			embed_msg.add_field(name=f"Refunded", value=f"{fine_ore_refunded}x Fine\n{normal_ore_refunded}x Enhancement", inline=True)
 
-			original mystic count = {mystic_count}\n
-			current mystic count = {curr_mystic_count} \n
-			total used mystic count = {mystic_count - curr_mystic_count} \n
-
-			original fine count = {fine_count}\n
-			current fine count = {curr_fine_count} \n
-			fine ore refunded this round = {fine_ore_refunded} \n
-			total used fine ore = {fine_count - curr_fine_count + total_fine_refunded}\n 
-
-			original normal count = {normal_count} \n 
-			current normal count = {curr_normal_count} \n
-			normal ore refunded this round = {normal_ore_refunded} \n
-			total used normal ore = {normal_count - curr_normal_count + total_normal_refunded}\n
-			
-			wasted exp = {wasted_exp}\n
-			total fine refunded = {total_fine_refunded}\n
-			total normal refunded = {total_normal_refunded}\n
-			----\n
-			"""
-			print(msg)
-			
 			curr_level = new_level
 			curr_exp = new_exp
 		
 			if curr_level == goal_level:
 				break
+
+		embed_msg.insert_field_at(index=1, name="After", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Xp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)		
+		
+		embed_summary = ""
+		if curr_level == goal_level:
+			embed_summary = f"You have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
+		else:
+			embed_summary = f"You do not have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
+		embed_summary += f"__Total used__\n{start_mystic_count - mystic_count}x Mystic\n{start_fine_count - fine_count + total_fine_refunded}x Fine\n{start_normal_count - normal_count + total_normal_refunded}x Enhancement\n\n"
+		embed_summary += f"__Total refunded__\n{total_fine_refunded}x Fine\n{total_normal_refunded}x Enhancement\n"
+
+		embed_msg.insert_field_at(index=2, name="Summary", value=embed_summary, inline=False)
+
 		return embed_msg
 
 	# Input: current level, goal level, current exp, and number of mystic, fine and regular ores.
-	# Output: If enough then how much it will cost
-	# 		: if not enough then what using all of the ores will get to and how many more mystic ores needed to reach goal
+	# Output: If enough then how much it will cost.
+	# 		  If not enough then what using all of the ores will get to and how many more mystic ores needed to reach goal.
 	@commands.command(aliases=["wep_exp"])
 	async def weapon_exp_calculator(self, ctx, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count):
 		args = ctx.message.content.split()
@@ -179,9 +183,7 @@ class WeaponExpCalculator(commands.Cog):
 				raise commands.ArgumentParsingError(message="Please enter number of enhancement ores greater or equal to 0.")
 
 			embed_msg = discord.Embed(title="Unital Bot", colour=discord.Colour.teal())
-			embed_msg.set_footer(text=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-			embed_msg.add_field(name="Before", value=f"Weapon rarity: {rarity}*\nWeapon level: {curr_level}\nGoal level: {goal_level}\nCurrent Xp: {curr_exp}\n# of Mystic enhancement ores: {mystic_count}\n# of Fine enhancement ores: {fine_count}\n# of Enhancement ores: {normal_count}")
-
+			embed_msg.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 			embed_msg = self.calculate(embed_msg, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count)
 			await ctx.send(embed=embed_msg)
 
