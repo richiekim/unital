@@ -57,6 +57,7 @@ class WeaponExpCalculator(commands.Cog):
 
 			# Calculate exp overflow
 			while True:
+				print(f"level = {curr_level}, exp = {curr_exp:,}/{int(next_level_exp[str(curr_level)]):,}")
 				if curr_exp >= int(next_level_exp[str(curr_level)]):
 					if curr_level + 1 in ASCENSION_MILESTONES:
 
@@ -73,6 +74,7 @@ class WeaponExpCalculator(commands.Cog):
 
 						curr_exp = 0
 						curr_level += 1
+
 						return curr_level, curr_exp, mystic_count, fine_count, normal_count, fine_ore_refunded, normal_ore_refunded, wasted_exp
 					else:
 						curr_exp = curr_exp - int(next_level_exp[str(curr_level)])
@@ -98,7 +100,7 @@ class WeaponExpCalculator(commands.Cog):
 		if not curr_exp < int(next_level_exp[str(curr_level)]):
 			raise commands.ArgumentParsingError(message="Please enter a valid current experience points.")
 
-		embed_msg.add_field(name="Before", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Xp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
+		embed_msg.add_field(name="Before", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
 
 		start_mystic_count = mystic_count
 		start_fine_count = fine_count
@@ -107,7 +109,7 @@ class WeaponExpCalculator(commands.Cog):
 		total_fine_refunded = 0
 		total_normal_refunded = 0
 
-		while mystic_count + fine_count + normal_count > 0:
+		while mystic_count + fine_count + normal_count > 0 and curr_level < goal_level:
 			prev_mystic_count = mystic_count
 			prev_fine_count = fine_count	
 			prev_normal_count = normal_count
@@ -130,27 +132,25 @@ class WeaponExpCalculator(commands.Cog):
 			total_fine_refunded += fine_ore_refunded
 			total_normal_refunded += normal_ore_refunded
 
-			embed_msg.add_field(name=f"Leveling: {curr_level} -> {level_upto}", value=f"Reached level {new_level:,}/{level_upto:,}\nCurrent exp: {new_exp:,}/{next_level_exp[str(new_level)]:,}", inline=True)
+			embed_msg.add_field(name=f"Leveling: {curr_level} -> {level_upto}", value=f"Reached level {new_level:,}/{curr_upper_level_cap:,}\nCurrent exp: {new_exp:,}/{next_level_exp[str(new_level)]:,}", inline=True)
 			embed_msg.add_field(name=f"Used", value=f"{prev_mystic_count - mystic_count}x Mystic\n{prev_fine_count - fine_count +fine_ore_refunded}x Fine\n{prev_normal_count - normal_count + normal_ore_refunded}x Enhancement", inline=True)
 			embed_msg.add_field(name=f"Refunded", value=f"{fine_ore_refunded}x Fine\n{normal_ore_refunded}x Enhancement", inline=True)
 
 			curr_level = new_level
 			curr_exp = new_exp
 		
-			if curr_level == goal_level:
-				break
 
-		embed_msg.insert_field_at(index=1, name="After", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Xp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)		
+		embed_msg.insert_field_at(index=1, name="After", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)		
 		
-		embed_summary = ""
-		if curr_level == goal_level:
-			embed_summary = f"You have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
+		msg = ""
+		if curr_level >= goal_level:
+			msg = f"You have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
 		else:
-			embed_summary = f"You do not have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
-		embed_summary += f"__Total used__\n{start_mystic_count - mystic_count}x Mystic\n{start_fine_count - fine_count + total_fine_refunded}x Fine\n{start_normal_count - normal_count + total_normal_refunded}x Enhancement\n\n"
-		embed_summary += f"__Total refunded__\n{total_fine_refunded}x Fine\n{total_normal_refunded}x Enhancement\n"
+			msg = f"You do not have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
+		msg += f"__Total used__\n{start_mystic_count - mystic_count}x Mystic\n{start_fine_count - fine_count + total_fine_refunded}x Fine\n{start_normal_count - normal_count + total_normal_refunded}x Enhancement\n\n"
+		msg += f"__Total refunded__\n{total_fine_refunded}x Fine\n{total_normal_refunded}x Enhancement\n"
 
-		embed_msg.insert_field_at(index=2, name="Summary", value=embed_summary, inline=False)
+		embed_msg.insert_field_at(index=2, name="Summary", value=msg, inline=False)
 
 		return embed_msg
 
