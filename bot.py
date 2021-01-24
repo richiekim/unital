@@ -5,7 +5,8 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
-client = commands.Bot(command_prefix="!", activity=discord.Game(name="!help"))
+client = commands.Bot(command_prefix="!")
+client.activity = discord.Game(name=f"{client.command_prefix}help")
 
 def default_embed_template():
     embedded_message = discord.Embed(title="Unital Bot", colour=discord.Colour.teal())
@@ -31,10 +32,14 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CheckFailure):
         await ctx.send(content=f"Error: Command denied. Only the bot's owner can use this command.")
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(content=f"Error: Missing required arguments. Please use the help command for usage.")
-    else:
-        print(f"Error: {error}")
+        await ctx.send(content=f"Error: Missing required arguments. Check out the {client.command_prefix}help command for usage.")
+    elif isinstance(error, commands.ArgumentParsingError):
         await ctx.send(content=f"Error: {error}")
+    elif isinstance(error, commands.ExtensionError):
+        await ctx.send(content=f"Error: {error}. Please contact the bot's owner.")
+    else:
+        print(f"Uncaught Exception: {error}")
+        await ctx.send(content=f"Uncaught Exception: {error}. Please contact the bot's owner.")
 
 @client.command()
 @commands.is_owner()
@@ -63,11 +68,11 @@ async def reload(ctx, extension):
 #     args = ctx.message.content.split()
 
 #     if len(args) == 1:
-#         embedded_message.add_field(name="Bot Commands", value="`./help <command>`")
+#         embedded_message.add_field(name="Bot Commands", value="`!help <command>`")
 #         await ctx.send(embed=embedded_message) 
 
 for filename in os.listdir("./cogs"):
-    if filename.endswith("py"):
+    if filename.endswith(".py"):
         client.load_extension(f"cogs.{filename[:-3]}")
 
 client.run(os.getenv("TOKEN"))
