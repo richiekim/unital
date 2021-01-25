@@ -144,7 +144,7 @@ class WeaponExpCalculator(commands.Cog):
 		if curr_level >= goal_level:
 			msg = f"You have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
 		else:
-			msg = f"You do not have enough enhancement ores to reach your goal, level {goal_level}.\n\n"
+			msg = f"You do not have enough enhancement ores to reach level {goal_level}.\n\n"
 		msg += f"__Total used__\n{start_mystic_count - mystic_count}x Mystic\n{start_fine_count - fine_count + total_fine_refunded}x Fine\n{start_normal_count - normal_count + total_normal_refunded}x Enhancement\n\n"
 		msg += f"__Total refunded__\n{total_fine_refunded}x Fine\n{total_normal_refunded}x Enhancement\n"
 
