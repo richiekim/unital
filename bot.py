@@ -9,8 +9,7 @@ client = commands.Bot(command_prefix="!")
 client.activity = discord.Game(name=f"{client.command_prefix}help")
 
 def default_embed_template():
-    embedded_message = discord.Embed(title="Unital Bot", colour=discord.Colour.teal())
-    embedded_message.set_footer(text="Written by richie#2785", icon_url=os.getenv("ICON"))
+    embedded_message = discord.Embed(title=f"**{client.user.name}**", colour=discord.Colour.teal())
     return embedded_message
 
 @client.event

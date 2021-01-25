@@ -182,7 +182,7 @@ class WeaponExpCalculator(commands.Cog):
 			if mystic_count < 0 or fine_count < 0 or normal_count < 0:
 				raise commands.ArgumentParsingError(message="Please enter number of enhancement ores greater or equal to 0.")
 
-			embed_msg = discord.Embed(title="**Unital Bot**", colour=discord.Colour.teal())
+			embed_msg = discord.Embed(title=f"**{self.client.user.name}**", colour=discord.Colour.teal())
 			embed_msg.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 			embed_msg = self.calculate(embed_msg, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count)
 			await ctx.send(embed=embed_msg)
