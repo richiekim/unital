@@ -27,29 +27,31 @@ class CharacterExpCalculator(commands.Cog):
 		wasted_exp = 0
 
 		while herowit_count + advexp_count + wandadv_count > 0 and curr_level < level_upto:
-			difference = int(next_level_exp[str(curr_level)]) - curr_exp
+			# difference = int(next_level_exp[str(curr_level)]) - curr_exp
+			total_exp_next_level = int(next_level_exp[str(curr_level)])
 			
-			curr_exp, herowit_count = use_exp_mat(curr_exp, int(next_level_exp[str(curr_level)]) - curr_exp, herowit_count, HERO_WIT, False)
-			curr_exp, advexp_count = use_exp_mat(curr_exp, int(next_level_exp[str(curr_level)]) - curr_exp, advexp_count, ADVENTURER_EXPERIENCE, False)
-			curr_exp, wandadv_count = use_exp_mat(curr_exp, int(next_level_exp[str(curr_level)]) - curr_exp, wandadv_count, WANDER_ADVICE, False)
+			# Use as much before going over the required exp amount starting materials that give the most to the least
+			curr_exp, herowit_count = use_exp_mat(curr_exp, total_exp_next_level, herowit_count, HERO_WIT, False)
+			curr_exp, advexp_count = use_exp_mat(curr_exp, total_exp_next_level, advexp_count, ADVENTURER_EXPERIENCE, False)
 
-			curr_exp, wandadv_count = use_exp_mat(curr_exp, int(next_level_exp[str(curr_level)]) - curr_exp, wandadv_count, WANDER_ADVICE, True)
-			curr_exp, herowit_count = use_exp_mat(curr_exp, int(next_level_exp[str(curr_level)]) - curr_exp, herowit_count, HERO_WIT, True)
-			curr_exp, advexp_count = use_exp_mat(curr_exp, int(next_level_exp[str(curr_level)]) - curr_exp, advexp_count, ADVENTURER_EXPERIENCE, True)
+			# Use as much to go over the required exp amount starting from materials that give the least to the most
+			curr_exp, wandadv_count = use_exp_mat(curr_exp, total_exp_next_level, wandadv_count, WANDER_ADVICE, True)
+			curr_exp, advexp_count = use_exp_mat(curr_exp, total_exp_next_level, advexp_count, ADVENTURER_EXPERIENCE, True)
+			curr_exp, herowit_count = use_exp_mat(curr_exp, total_exp_next_level, herowit_count, HERO_WIT, True)
 
 			# Calculate exp overflow
 			while True:
 				if curr_exp >= int(next_level_exp[str(curr_level)]):
 					if curr_level + 1 in ASCENSION_MILESTONES:
 						# Calculate refunded ores if any
-						wasted_exp = curr_exp - int(next_level_exp[str(curr_level)])
+						wasted_exp = curr_exp - total_exp_next_level
 
 						curr_exp = 0
 						curr_level += 1
 
-						return curr_level, curr_exp, herowit_count, advexp_count, wasted_exp
+						return curr_level, curr_exp, herowit_count, advexp_count, wandadv_count, wasted_exp
 					else:
-						curr_exp = curr_exp - int(next_level_exp[str(curr_level)])
+						curr_exp = curr_exp - total_exp_next_level 
 						curr_level += 1
 				else:
 					break
@@ -97,12 +99,11 @@ class CharacterExpCalculator(commands.Cog):
 			# Add exp
 			new_level, new_exp, herowit_count, advexp_count, wandadv_count, wasted_exp = self.add_exp(next_level_exp, curr_level, level_upto, curr_exp, herowit_count, advexp_count, wandadv_count)			
 
-			embed_msg.add_field(name=f"**Leveling: {curr_level} -> {level_upto}**", value=f"Reached level {new_level:,}/{curr_upper_level_cap:,}\nCurrent exp: {new_exp:,}/{next_level_exp[str(new_level)]:,}", inline=True)
+			embed_msg.add_field(name=f"**Leveling: {curr_level} -> {level_upto}**", value=f"Reached level {new_level:,}/{curr_upper_level_cap:,}\nCurrent exp: {new_exp:,}/{next_level_exp[str(new_level)]:,}\n", inline=True)
 			embed_msg.add_field(name=f"**Used**", value=f"{prev_herowit_count - herowit_count}x Hero's Wit\n{prev_advexp_count - advexp_count}x Adventurer's Experience\n{prev_wandadv_count - wandadv_count}x Wanderer's Advice", inline=True)
-
+			embed_msg.add_field(name=f"**More Details**", value=f"Exp wasted: {wasted_exp}\n")
+			
 			curr_level = new_level
-			# Temp Line
-			# curr_level = goal_level
 			curr_exp = new_exp
 
 		msg = self.format_char_stats(curr_level, curr_exp, next_level_exp[str(curr_level)], herowit_count, advexp_count, wandadv_count)
