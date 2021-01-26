@@ -3,6 +3,7 @@ import json
 import math
 
 from discord.ext import commands
+from common_functions import default_embed_template, use_exp_mat
 
 MYSTIC = 10000
 FINE = 2000
@@ -13,46 +14,20 @@ class WeaponExpCalculator(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 
+
+
 	def add_exp(self, next_level_exp, curr_level, level_upto, curr_exp, mystic_count, fine_count, normal_count):
 		fine_ore_refunded = 0
 		normal_ore_refunded = 0
 		wasted_exp = 0
 
 		while curr_level < level_upto and mystic_count + fine_count + normal_count > 0:
-			difference = int(next_level_exp[str(curr_level)]) - curr_exp
-			
-			# Use mystic enhancement ores
-			if difference > 0:
-				ore_used = 0
-				if math.floor(difference/MYSTIC) + 1 < mystic_count:
-					ore_used = math.floor(difference/MYSTIC) + 1
-				else:
-					ore_used = mystic_count
-				curr_exp += ore_used*MYSTIC
-				mystic_count -= ore_used
-				difference -= ore_used*MYSTIC
+			total_exp_next_level = int(next_level_exp[str(curr_level)])
 
-			# Use fine enhancement ores
-			if difference > 0:
-				ore_used = 0
-				if math.floor(difference/FINE) + 1 < fine_count:
-					ore_used = math.floor(difference/FINE) + 1
-				else:
-					ore_used = fine_count
-				curr_exp += ore_used*FINE
-				fine_count -= ore_used
-				difference -= ore_used*FINE
-
-			# Use normal enhancement ores
-			if difference > 0:
-				ore_used = 0
-				if math.floor(difference/NORMAL) + 1 < normal_count:
-					ore_used = math.floor(difference/NORMAL) + 1
-				else:
-					ore_used = normal_count
-				curr_exp += ore_used*NORMAL
-				normal_count -= ore_used
-				difference -= ore_used*NORMAL
+			# Use materials until curr_level is over total_exp_next_level starting for those that give the most exp to the least
+			curr_exp, mystic_count = use_exp_mat(curr_exp, total_exp_next_level, mystic_count, MYSTIC, True)
+			curr_exp, fine_count = use_exp_mat(curr_exp, total_exp_next_level, fine_count, FINE, True)
+			curr_exp, normal_count = use_exp_mat(curr_exp, total_exp_next_level, normal_count, NORMAL, True)
 
 			# Calculate exp overflow
 			while True:
