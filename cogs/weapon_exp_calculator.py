@@ -80,8 +80,7 @@ class WeaponExpCalculator(commands.Cog):
 
 		msg = self.format_char_stats(rarity, curr_level, curr_exp, next_level_exp[str(curr_level)], mystic_count, fine_count, normal_count)
 		embed_msg.add_field(name="**Before**", value=msg, inline=True)
-		# embed_msg.add_field(name="**Before**", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
-
+		
 		start_mystic_count = mystic_count
 		start_fine_count = fine_count
 		start_normal_count = normal_count
@@ -162,8 +161,7 @@ class WeaponExpCalculator(commands.Cog):
 			if mystic_count < 0 or fine_count < 0 or normal_count < 0:
 				raise commands.ArgumentParsingError(message="Please enter number of enhancement ores greater or equal to 0.")
 
-			embed_msg = discord.Embed(title=f"**{self.client.user.name}**", colour=discord.Colour.teal())
-			embed_msg.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+			embed_msg = default_embed_template(ctx, self.client.user.name)
 			embed_msg = self.calculate(embed_msg, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count)
 			await ctx.send(embed=embed_msg)
 
