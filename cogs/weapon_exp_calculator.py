@@ -1,7 +1,6 @@
 import discord
 import json
 import math
-import time
 
 from discord.ext import commands
 
@@ -86,17 +85,14 @@ class WeaponExpCalculator(commands.Cog):
 			next_level_exp = json.load(f)
 		f.close()
 
-		if curr_exp > int(next_level_exp[str(curr_level)]):
-			raise commands.ArgumentParsingError(message="Invalid current weapon experience points value.")
-
 		if not str(curr_level) in next_level_exp:
 			raise commands.ArgumentParsingError(message="Please enter a valid weapon level.")
 
 		if not str(goal_level) in next_level_exp:
 			raise commands.ArgumentParsingError(message="Please enter a valid goal level.")
 
-		if not curr_exp < int(next_level_exp[str(curr_level)]):
-			raise commands.ArgumentParsingError(message="Please enter a valid current experience points.")
+		if curr_exp > int(next_level_exp[str(curr_level)]):
+			raise commands.ArgumentParsingError(message="Invalid current weapon experience points value.")
 
 		embed_msg.add_field(name="**Before**", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
 
