@@ -14,7 +14,16 @@ class WeaponExpCalculator(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 
-
+	def format_char_stats(self, rarity, curr_level, curr_exp, curr_exp_cap, mystic_count, fine_count, normal_count):
+		msg = f"__Weapon__\n"
+		msg += f"Rarity: {rarity}:star:\n"
+		msg += f"Weapon level: {curr_level}\n"
+		msg += f"Current Exp: {curr_exp:,}/{curr_exp_cap:,}\n\n"
+		msg += f"__Inventory__\n"
+		msg += f"{mystic_count:,}x Mystic\n"
+		msg += f"{fine_count:,}x Fine\n"
+		msg += f"{normal_count:,}x Enhancement\n"
+		return msg
 
 	def add_exp(self, next_level_exp, curr_level, level_upto, curr_exp, mystic_count, fine_count, normal_count):
 		fine_ore_refunded = 0
@@ -69,7 +78,9 @@ class WeaponExpCalculator(commands.Cog):
 		if curr_exp > int(next_level_exp[str(curr_level)]):
 			raise commands.ArgumentParsingError(message="Invalid current weapon experience points value.")
 
-		embed_msg.add_field(name="**Before**", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
+		msg = self.format_char_stats(rarity, curr_level, curr_exp, next_level_exp[str(curr_level)], mystic_count, fine_count, normal_count)
+		embed_msg.add_field(name="**Before**", value=msg, inline=True)
+		# embed_msg.add_field(name="**Before**", value=f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement", inline=True)
 
 		start_mystic_count = mystic_count
 		start_fine_count = fine_count
@@ -107,10 +118,9 @@ class WeaponExpCalculator(commands.Cog):
 
 			curr_level = new_level
 			curr_exp = new_exp
-		
-		msg = f"__Weapon__\nWeapon rarity: {rarity}:star:\nWeapon level: {curr_level}\nCurrent Exp: {curr_exp:,}/{next_level_exp[str(curr_level)]:,}\n\n"
-		msg += f"__Inventory__\n{mystic_count:,}x Mystic\n{fine_count:,}x Fine\n{normal_count:,}x Enhancement"
-		embed_msg.insert_field_at(index=1, name="**After**", value=msg, inline=True)		
+
+		msg = self.format_char_stats(rarity, curr_level, curr_exp, next_level_exp[str(curr_level)], mystic_count, fine_count, normal_count)
+		embed_msg.insert_field_at(index=1, name="**After**", value=msg, inline=True)	
 		
 		if curr_level >= goal_level:
 			msg = f"You have enough enhancement ores to reach level {goal_level}.\n\n"
