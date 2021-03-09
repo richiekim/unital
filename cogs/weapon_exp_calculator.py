@@ -136,8 +136,8 @@ class WeaponExpCalculator(commands.Cog):
 	# Output: 
 	# If enough then how many ores it will cost.
 	# If not enough then what level will using all of the ores will get to and how many more ores needed to reach goal.
-	@commands.command(aliases=["wep_exp"])
-	async def weapon_exp_calculator(self, ctx, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count):
+	@commands.command()
+	async def wep_exp(self, ctx, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count):
 		args = ctx.message.content.split()
 
 		if len(args) == 8:

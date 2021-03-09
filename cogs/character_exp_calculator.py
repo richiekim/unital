@@ -118,8 +118,8 @@ class CharacterExpCalculator(commands.Cog):
 
 		return embed_msg
 
-	@commands.command(aliases=["char_exp"])
-	async def character_exp_calculator(self, ctx, curr_level, goal_level, curr_exp, herowit_count, advexp_count, wandadv_count):
+	@commands.command()
+	async def char_exp(self, ctx, curr_level, goal_level, curr_exp, herowit_count, advexp_count, wandadv_count):
 		args = ctx.message.content.split()
 
 		if len(args) == 7:
