@@ -6,7 +6,7 @@ class Ping(commands.Cog):
 	def __init__(self, client):
 		self.client = client
 
-	@commands.command()
+	@commands.command(hidden=True)
 	async def ping(self, ctx):
 		args = ctx.message.content.split()
 
