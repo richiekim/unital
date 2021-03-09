@@ -166,7 +166,7 @@ class WeaponExpCalculator(commands.Cog):
 			await ctx.send(embed=embed_msg)
 
 		else:
-			await ctx.send(f"Usage: {self.client.command_prefix}weapon_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>\n{self.client.command_prefix}help for more details.")
+			await ctx.send(f"Usage: {self.client.command_prefix}wep_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>\n{self.client.command_prefix}help for more details.")
 
 def setup(client):
 	client.add_cog(WeaponExpCalculator(client))
