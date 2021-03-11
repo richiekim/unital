@@ -26,35 +26,34 @@ class CharacterExpCalculator(commands.Cog):
 	def add_exp(self, next_level_exp, curr_level, level_upto, curr_exp, herowit_count, advexp_count, wandadv_count):
 		wasted_exp = 0
 
-		while herowit_count + advexp_count + wandadv_count > 0 and curr_level < level_upto:
-			# difference = int(next_level_exp[str(curr_level)]) - curr_exp
-			total_exp_next_level = int(next_level_exp[str(curr_level)])
-			
-			# Use as much before going over the required exp amount starting materials that give the most to the least
-			curr_exp, herowit_count = use_exp_mat(curr_exp, total_exp_next_level, herowit_count, HERO_WIT, False)
-			curr_exp, advexp_count = use_exp_mat(curr_exp, total_exp_next_level, advexp_count, ADVENTURER_EXPERIENCE, False)
+		total_exp_to_milestone = 0
+		for lvl in range(curr_level, level_upto):
+			total_exp_to_milestone += int(next_level_exp[str(lvl)])
+		
+		# Use as much before going over the required exp amount starting materials that give the most to the least
+		curr_exp, herowit_count = use_exp_mat(curr_exp, total_exp_to_milestone, herowit_count, HERO_WIT, False)
+		curr_exp, advexp_count = use_exp_mat(curr_exp, total_exp_to_milestone, advexp_count, ADVENTURER_EXPERIENCE, False)
 
-			# Use as much to go over the required exp amount starting from materials that give the least to the most
-			curr_exp, wandadv_count = use_exp_mat(curr_exp, total_exp_next_level, wandadv_count, WANDER_ADVICE, True)
-			curr_exp, advexp_count = use_exp_mat(curr_exp, total_exp_next_level, advexp_count, ADVENTURER_EXPERIENCE, True)
-			curr_exp, herowit_count = use_exp_mat(curr_exp, total_exp_next_level, herowit_count, HERO_WIT, True)
+		# Use as much to go over the required exp amount starting from materials that give the least to the most
+		curr_exp, wandadv_count = use_exp_mat(curr_exp, total_exp_to_milestone, wandadv_count, WANDER_ADVICE, True)
+		curr_exp, advexp_count = use_exp_mat(curr_exp, total_exp_to_milestone, advexp_count, ADVENTURER_EXPERIENCE, True)
+		curr_exp, herowit_count = use_exp_mat(curr_exp, total_exp_to_milestone, herowit_count, HERO_WIT, True)
 
-			# Calculate exp overflow
-			while True:
-				if curr_exp >= int(next_level_exp[str(curr_level)]):
-					if curr_level + 1 in ASCENSION_MILESTONES:
-						# Calculate refunded ores if any
-						wasted_exp = curr_exp - total_exp_next_level
+		while True:
+			if curr_exp >= int(next_level_exp[str(curr_level)]):
+				if curr_level + 1 in ASCENSION_MILESTONES:
+					wasted_exp = curr_exp - int(next_level_exp[str(curr_level)])
 
-						curr_exp = 0
-						curr_level += 1
+					curr_exp = 0
+					curr_level += 1
 
-						return curr_level, curr_exp, herowit_count, advexp_count, wandadv_count, wasted_exp
-					else:
-						curr_exp = curr_exp - total_exp_next_level 
-						curr_level += 1
+					return curr_level, curr_exp, herowit_count, advexp_count, wandadv_count, wasted_exp
 				else:
-					break
+					curr_exp = curr_exp - int(next_level_exp[str(curr_level)])
+					curr_level += 1
+			else:
+				break
+
 		return curr_level, curr_exp, herowit_count, advexp_count, wandadv_count, wasted_exp
 
 
@@ -145,7 +144,7 @@ class CharacterExpCalculator(commands.Cog):
 			await ctx.send(embed=embed_msg)
 
 		else:
-			await ctx.send(f"Usage: {self.client.command_prefix}char_exp <curr_level> <goal_level> <curr_exp> <herowit_count> <advexp_count> <wandadv_count>\n{self.client.command_prefix}help for more details.")
+			await ctx.send(f"Usage: {self.client.command_prefix}char_exp <curr_level> <goal_level> <curr_exp> <herowit_count> <advexp_count> <wandadv_count>\nCheck out {self.client.command_prefix}help for more details.")
 
 def setup(client):
 	client.add_cog(CharacterExpCalculator(client))
