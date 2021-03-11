@@ -118,17 +118,17 @@ class CharacterExpCalculator(commands.Cog):
 		return embed_msg
 
 	@commands.command()
-	async def char_exp(self, ctx, curr_level, goal_level, curr_exp, herowit_count, advexp_count, wandadv_count):
+	async def char_exp(self, ctx):
 		args = ctx.message.content.split()
 
 		if len(args) == 7:
 			try:
-				curr_level = int(curr_level)
-				goal_level = int(goal_level)
-				curr_exp = int(curr_exp)
-				herowit_count = int(herowit_count)
-				advexp_count = int(advexp_count)
-				wandadv_count = int(wandadv_count)
+				curr_level = int(args[1])
+				goal_level = int(args[2])
+				curr_exp = int(args[3])
+				herowit_count = int(args[4])
+				advexp_count = int(args[5])
+				wandadv_count = int(args[6])
 			except ValueError:
 				raise commands.ArgumentParsingError(message="Please enter integer values only.")
 
@@ -144,7 +144,7 @@ class CharacterExpCalculator(commands.Cog):
 			await ctx.send(embed=embed_msg)
 
 		else:
-			await ctx.send(f"Usage: {self.client.command_prefix}char_exp <curr_level> <goal_level> <curr_exp> <herowit_count> <advexp_count> <wandadv_count>\nCheck out {self.client.command_prefix}help for more details.")
+			await ctx.send(f"Usage: `{self.client.command_prefix}char_exp <curr_level> <goal_level> <curr_exp> <herowit_count> <advexp_count> <wandadv_count>`\nCheck out `{self.client.command_prefix}help` for more details.")
 
 def setup(client):
 	client.add_cog(CharacterExpCalculator(client))

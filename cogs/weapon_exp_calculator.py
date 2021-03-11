@@ -137,18 +137,18 @@ class WeaponExpCalculator(commands.Cog):
 	# If enough then how many ores it will cost.
 	# If not enough then what level will using all of the ores will get to and how many more ores needed to reach goal.
 	@commands.command()
-	async def wep_exp(self, ctx, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count):
+	async def wep_exp(self, ctx):
 		args = ctx.message.content.split()
 
 		if len(args) == 8:
 			try:
-				rarity = int(rarity)
-				curr_level = int(curr_level)
-				goal_level = int(goal_level)
-				curr_exp = int(curr_exp)
-				mystic_count = int(mystic_count)
-				fine_count = int(fine_count)
-				normal_count = int(normal_count)
+				rarity = int(args[1])
+				curr_level = int(args[2])
+				goal_level = int(args[3])
+				curr_exp = int(args[4])
+				mystic_count = int(args[5])
+				fine_count = int(args[6])
+				normal_count = int(args[7])
 			except ValueError:
 				raise commands.ArgumentParsingError(message="Please enter integer values only.")
 
@@ -166,7 +166,7 @@ class WeaponExpCalculator(commands.Cog):
 			await ctx.send(embed=embed_msg)
 
 		else:
-			await ctx.send(f"Usage: {self.client.command_prefix}wep_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>\n{self.client.command_prefix}help for more details.")
+			await ctx.send(f"`Usage: {self.client.command_prefix}wep_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>`\n`{self.client.command_prefix}help` for more details.")
 
 def setup(client):
 	client.add_cog(WeaponExpCalculator(client))
