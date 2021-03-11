@@ -12,7 +12,16 @@ ASCENSION_MILESTONES = [90, 80, 70, 60, 50, 40, 20]
 
 class WeaponExpCalculator(commands.Cog):
 	def __init__(self, client):
-		self.client = client
+		self._client = client
+		self._calls = 0
+	
+	@property
+	def calls(self):
+		return self._calls
+
+	@calls.setter
+	def calls(self, new_calls):
+		self._calls = new_calls
 
 	def format_char_stats(self, rarity, curr_level, curr_exp, curr_exp_cap, mystic_count, fine_count, normal_count):
 		msg = f"__Weapon__\n"
@@ -138,6 +147,8 @@ class WeaponExpCalculator(commands.Cog):
 	# If not enough then what level will using all of the ores will get to and how many more ores needed to reach goal.
 	@commands.command()
 	async def wep_exp(self, ctx):
+		self.calls += 1
+
 		args = ctx.message.content.split()
 
 		if len(args) == 8:
@@ -161,12 +172,17 @@ class WeaponExpCalculator(commands.Cog):
 			if mystic_count < 0 or fine_count < 0 or normal_count < 0:
 				raise commands.ArgumentParsingError(message="Please enter number of enhancement ores greater or equal to 0.")
 
-			embed_msg = default_embed_template(ctx, self.client.user.name)
+			embed_msg = default_embed_template(ctx, self._client.user.name)
 			embed_msg = self.calculate(embed_msg, rarity, curr_level, goal_level, curr_exp, mystic_count, fine_count, normal_count)
 			await ctx.send(embed=embed_msg)
 
 		else:
-			await ctx.send(f"`Usage: {self.client.command_prefix}wep_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>`\n`{self.client.command_prefix}help` for more details.")
+			await ctx.send(f"`Usage: {self._client.command_prefix}wep_exp <rarity> <curr_level> <goal_level> <curr_exp> <mystic_count> <fine_count> <normal_count>`\n`{self._client.command_prefix}help` for more details.")
+
+	@commands.command(hidden=True)
+	@commands.is_owner()
+	async def wep_exp_calls(self, ctx):
+		await ctx.send(content=f"Calls: {self.calls}")
 
 def setup(client):
 	client.add_cog(WeaponExpCalculator(client))

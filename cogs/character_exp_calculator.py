@@ -12,7 +12,16 @@ ASCENSION_MILESTONES = [90, 80, 70, 60, 50, 40, 20]
 
 class CharacterExpCalculator(commands.Cog):
 	def __init__(self, client):
-		self.client = client
+		self._client = client
+		self._calls = 0
+
+	@property
+	def calls(self):
+		return self._calls
+
+	@calls.setter
+	def calls(self, new_calls):
+		self._calls = new_calls
 
 	def format_char_stats(self, curr_level, curr_exp, curr_exp_cap, herowit_count, advexp_count, wandadv_count):
 		msg = f"__Character__\nCharacter level: {curr_level}\n"
@@ -119,6 +128,8 @@ class CharacterExpCalculator(commands.Cog):
 
 	@commands.command()
 	async def char_exp(self, ctx):
+		self.calls += 1
+		
 		args = ctx.message.content.split()
 
 		if len(args) == 7:
@@ -138,13 +149,18 @@ class CharacterExpCalculator(commands.Cog):
 			if herowit_count < 0 or advexp_count < 0 or wandadv_count < 0:
 				raise commands.ArgumentParsingError(message="Please enter number of materials equal to or greater than 0.")
 
-			embed_msg = default_embed_template(ctx, self.client.user.name)
+			embed_msg = default_embed_template(ctx, self._client.user.name)
 			embed_msg = self.calculate(embed_msg, curr_level, goal_level, curr_exp, herowit_count, advexp_count, wandadv_count)
 
 			await ctx.send(embed=embed_msg)
 
 		else:
-			await ctx.send(f"Usage: `{self.client.command_prefix}char_exp <curr_level> <goal_level> <curr_exp> <herowit_count> <advexp_count> <wandadv_count>`\nCheck out `{self.client.command_prefix}help` for more details.")
+			await ctx.send(f"Usage: `{self._client.command_prefix}char_exp <curr_level> <goal_level> <curr_exp> <herowit_count> <advexp_count> <wandadv_count>`\nCheck out `{self._client.command_prefix}help` for more details.")
+
+	@commands.command(hidden=True)
+	@commands.is_owner()
+	async def char_exp_calls(self, ctx):
+		await ctx.send(content=f"Calls: {self.calls}")
 
 def setup(client):
 	client.add_cog(CharacterExpCalculator(client))
